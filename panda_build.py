@@ -209,12 +209,27 @@ def chapter_html(title, body, prev_link, next_link):
     return page(title, inner)
 
 
+def load_from_html():
+    """没有 txt 底稿时，从已生成的章节 html 反向取正文，用于重建 docx。"""
+    chapters = []
+    for p in sorted(glob.glob(os.path.join(OUTDIR, "*", "第*章*.html"))):
+        s = open(p, encoding="utf-8").read()
+        m = re.search(r"<h1>(.*?)</h1>", s, re.S)
+        if not m:
+            continue
+        title = ihtml.unescape(m.group(1))
+        mnum = re.search(r"第\s*(\d+)\s*章", title)
+        if not mnum:
+            continue
+        seg = s.split("</h1>", 1)[1].split("<div class='nav'>", 1)[0]
+        body = "\n".join(ihtml.unescape(x) for x in re.findall(r"<p>(.*?)</p>", seg, re.S))
+        chapters.append((int(mnum.group(1)), title, body.strip()))
+    return chapters
+
+
 def main():
     os.makedirs(OUTDIR, exist_ok=True)
     srcs = sorted(glob.glob(os.path.join(SRC_DIR, "第*章*.txt")))
-    if not srcs:
-        print("no source chapters in", SRC_DIR)
-        return
 
     # collect
     chapters = []
@@ -229,6 +244,12 @@ def main():
         num = int(re.search(r'第\s*(\d+)\s*章', title).group(1))
         body = "\n".join(lines[lines.index(title) + 1:]).strip()
         chapters.append((num, title, body))
+    if not chapters:
+        print("no txt source, fallback to existing html")
+        chapters = load_from_html()
+    if not chapters:
+        print("no chapters found")
+        return
     chapters.sort(key=lambda x: x[0])
 
     # group by volume
