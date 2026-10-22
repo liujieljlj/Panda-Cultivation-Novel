@@ -99,6 +99,7 @@ def main(old_path, new_path):
 
 
 if __name__ == "__main__":
-    old = sys.argv[1]
-    new = sys.argv[2]
-    main(old, new)
+    if len(sys.argv) < 3:
+        print("用法: python 脚本/rhythm_scan.py <原著章.txt> <新章.txt>")
+        sys.exit(1)
+    main(sys.argv[1], sys.argv[2])

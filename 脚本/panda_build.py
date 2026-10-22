@@ -1,18 +1,21 @@
 # -*- coding: utf-8 -*-
 """Build HTML + DOCX for the panda-version novel (my own rewrite).
 
-Source : 熊猫版_正文/第NNN章 标题.txt
-Output : 熊猫成仙，从青竹山开始/<卷名>/第NNN章 标题.{html,docx}
+注意：本脚本已挪到 脚本/ 子目录，下面的 WORKSPACE 指的是项目根目录。
+Source : 熊猫成仙，从青竹山开始/<卷名>/第NNN章 标题.html（正文以 html 为准）
+Output : 同步重建同名 .docx，并重新生成卷 index 与总 index
+         熊猫成仙，从青竹山开始/<卷名>/第NNN章 标题.{html,docx}
          熊猫成仙，从青竹山开始/<卷名>/index.html
          熊猫成仙，从青竹山开始/index.html
 
-Reusable: just drop more chapter .txt files into 熊猫版_正文/ and rerun.
+用法： python 脚本/panda_build.py   （在项目根目录或任意位置执行都可以）
 """
 import os, re, glob, html as ihtml, zipfile
 from xml.sax.saxutils import escape as xesc
 
-WORKSPACE = os.path.dirname(os.path.abspath(__file__))
-SRC_DIR = os.path.join(WORKSPACE, "熊猫版_正文")
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+WORKSPACE = os.path.dirname(SCRIPT_DIR)          # 项目根目录
+SRC_DIR = os.path.join(WORKSPACE, "熊猫版_正文")  # 已废弃，仅为兼容保留
 OUTDIR = os.path.join(WORKSPACE, "熊猫成仙，从青竹山开始")
 
 BOOK_TITLE = "熊猫成仙，从青竹山开始"

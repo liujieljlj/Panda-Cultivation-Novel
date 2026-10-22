@@ -109,6 +109,7 @@ def main(old_path, new_path, thr=0.45):
 
 
 if __name__ == "__main__":
-    old = sys.argv[1] if len(sys.argv) > 1 else "第1章 一条蛇的日常.txt"
-    new = sys.argv[2] if len(sys.argv) > 2 else "熊猫版_正文/第001章 一头熊猫的日常.txt"
-    main(old, new)
+    if len(sys.argv) < 3:
+        print("用法: python 脚本/deep_scan.py <原著章.txt> <新章.txt>")
+        sys.exit(1)
+    main(sys.argv[1], sys.argv[2])
