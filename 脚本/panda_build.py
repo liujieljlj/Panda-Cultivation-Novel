@@ -128,7 +128,7 @@ def make_docx(path, title, body):
         line = line.rstrip()
         if line == "":
             continue
-        paras.append(_para(line, "body"))
+        paras.append(_para(line, "meta" if line.strip() == VOL_END else "body"))
 
     document = (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -199,8 +199,20 @@ def page(title, inner):
     return PAGE_HEAD.format(title=ihtml.escape(title)) + inner + "\n</body></html>"
 
 
+VOL_END = "第 一 卷 完"
+
+
 def chapter_html(title, body, prev_link, next_link):
-    paras = "\n".join("<p>%s</p>" % ihtml.escape(p) for p in body.split("\n") if p.strip())
+    out = []
+    for p in body.split("\n"):
+        if not p.strip():
+            continue
+        if p.strip() == VOL_END:
+            out.append('<p style="text-indent:0;text-align:center;letter-spacing:.3em">%s</p>'
+                       % VOL_END)
+        else:
+            out.append("<p>%s</p>" % ihtml.escape(p))
+    paras = "\n".join(out)
     nav = '<div class="nav">'
     nav += '<a href="%s">← 上一章</a>' % prev_link if prev_link else "<span>　</span>"
     nav += "<span>%s</span>" % ihtml.escape(PROTAGONIST)
@@ -224,8 +236,8 @@ def load_from_html():
         mnum = re.search(r"第\s*(\d+)\s*章", title)
         if not mnum:
             continue
-        seg = s.split("</h1>", 1)[1].split("<div class='nav'>", 1)[0]
-        body = "\n".join(ihtml.unescape(x) for x in re.findall(r"<p>(.*?)</p>", seg, re.S))
+        seg = re.split(r'<div class="?nav', s.split("</h1>", 1)[1], 1)[0]
+        body = "\n".join(ihtml.unescape(x) for x in re.findall(r"<p[^>]*>(.*?)</p>", seg, re.S))
         chapters.append((int(mnum.group(1)), title, body.strip()))
     return chapters
 
